@@ -4,7 +4,7 @@ import pandas as pd
 
 DEFAULT_URL = "http://127.0.0.1"
 PORT = "5000"
-UPLOAD_PATH = "/api/upload/"
+UPLOAD_PATH = "/api/dataset_upload/"
 
 class cyberplot:
     def new(self, dataFrame, id, name, serverUrl = None):
@@ -15,7 +15,7 @@ class cyberplot:
             usedUrl = DEFAULT_URL
         usedUrl += ":" + PORT + UPLOAD_PATH
 
-        metadata = {"json": [{"json": {"name": name, "identifier": id}}]}
+        metadata = {"json": [{"json": {"name": name, "identifier": id, "containsHeader": 1}}]}
         files = {"file": open("_cp_dataset.csv", "rb")}
         response = requests.post(usedUrl, files = files, data = metadata, verify = False)
 
