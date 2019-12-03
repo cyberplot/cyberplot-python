@@ -7,28 +7,35 @@ PORT = "5000"
 UPLOAD_PATH = "/api/dataset_upload/"
 
 class cyberplot:
-    def new(self, dataFrame, id, name, serverUrl = None):
+    def new(self, dataFrame, id, name, serverUrl = None, matrix = False):
         if not name:
             print("Please specify dataset name.")
 
-        self.__upload(dataFrame, id, name, serverUrl, False)
+        self.__upload(dataFrame, id, name, serverUrl, False, matrix)
 
-    def update(self, dataFrame, id, serverUrl = None):
-        self.__upload(dataFrame, id, None, serverUrl, True)
+    def update(self, dataFrame, id, serverUrl = None, matrix = False):
+        self.__upload(dataFrame, id, None, serverUrl, True, matrix)
 
-    def __upload(self, dataFrame, id, name, serverUrl, updating):
+    def __upload(self, dataFrame, id, name, serverUrl, updating, matrix):
         if not id:
             print("Please specify identifier.")
             return
 
-        dataFrame.to_csv("_cp_dataset.csv", index = False)
+        datasetType = "multivariate"
+        containsHeader = 1
+        if matrix:
+            datasetType = "matrix"
+            dataFrame.to_csv("_cp_dataset.csv", index = False, header = False)
+            containsHeader = 0
+        else:
+            dataFrame.to_csv("_cp_dataset.csv", index = False)
 
         usedUrl = serverUrl
         if not serverUrl:
             usedUrl = DEFAULT_URL
         usedUrl += ":" + PORT + UPLOAD_PATH
 
-        metadata = {"json": [{"json": {"name": name, "identifier": id, "containsHeader": 1, "updating": updating}}]}
+        metadata = {"json": [{"json": {"name": name, "type": datasetType, "identifier": id, "containsHeader": containsHeader, "updating": updating}}]}
         files = {"file": open("_cp_dataset.csv", "rb")}
         response = requests.post(usedUrl, files = files, data = metadata, verify = False)
 
